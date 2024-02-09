@@ -1,0 +1,120 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class GameManager : MonoBehaviour
+{
+    public static GameManager instance;
+    [Header("# Game Control")] // 인스펙터를 깔끔하게 정리할 수 있음
+    public bool isLive;
+    public float gameTime;
+    public float maxGameTime = 2 * 10f;
+    [Header("# Player Info")]
+    public int playerId;
+    public float health;
+    public float maxHealth = 100;
+    public int level;
+    public int kill;
+    public int exp;
+    public int[] nextExp = { 3, 5, 10, 100, 150, 210, 280, 360, 450, 600 };
+    [Header("# GameObject")]
+    public PoolManager pool;
+    public Player player;
+    public LevelUp uiLevelUp;
+    public Result uiResult;
+    public GameObject enemyCleaner;
+
+    void Awake()
+    {
+        instance = this;
+    }
+
+    public void GameStart(int id)
+    {
+        playerId = id;
+        health = maxHealth;
+
+        player.gameObject.SetActive(true);
+        uiLevelUp.Select(playerId % 2);
+        Resume();
+    }
+
+    public void GameOver()
+    {
+        StartCoroutine(GameOverRoutine());
+    }
+
+    IEnumerator GameOverRoutine()
+    {
+        isLive = false;
+
+        yield return new WaitForSeconds(0.5f);
+
+        uiResult.gameObject.SetActive(true);
+        uiResult.Lose();
+        Stop();
+    }
+
+    public void GameVictory()
+    {
+        StartCoroutine(GameVictoryRoutine());
+    }
+
+    IEnumerator GameVictoryRoutine()
+    {
+        isLive = false;
+        enemyCleaner.SetActive(true); // 모든 몬스터를 클리어하는것 발동
+
+        yield return new WaitForSeconds(0.5f);
+
+        uiResult.gameObject.SetActive(true);
+        uiResult.Win();
+        Stop();
+    }
+
+
+    public void GameRetry()
+    {
+        // 장면을 새롭게 불러오기
+        SceneManager.LoadScene(0);
+    }
+
+    void Update()
+    {
+        if (!isLive) // 게임시간 일시정지
+            return;
+
+        gameTime += Time.deltaTime;
+
+        if (gameTime > maxGameTime) {
+            gameTime = maxGameTime;
+            GameVictory();
+        }
+    }
+    // 경험치 증가함수
+    public void GetExp() {
+        
+        if (!isLive) // 재시작시 몬스터를 클리어할때 경험치를 얻지않도록
+            return;
+
+        exp++;
+        if (exp == nextExp[Mathf.Min(level, nextExp.Length-1)]) {
+            level++;
+            exp = 0;
+            uiLevelUp.Show();
+        }
+    }
+
+    // 멈추거나 다시시작하는 함수
+    public void Stop()
+    {
+        isLive = false;
+        Time.timeScale = 0;
+    }
+    public void Resume()
+    {
+        isLive = true;
+        Time.timeScale = 1;
+    }
+}

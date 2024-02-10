@@ -6,6 +6,7 @@ public class Spawner : MonoBehaviour
 {
     public Transform[] spawnPoint;
     public SpawnData[] spawnData;
+    public float levelTime;
 
     int level;
     float timer;
@@ -13,6 +14,7 @@ public class Spawner : MonoBehaviour
     private void Awake()
     {
         spawnPoint = GetComponentsInChildren<Transform>();
+        levelTime = GameManager.instance.maxGameTime / spawnData.Length;
     }
 
     void Update()
@@ -21,7 +23,7 @@ public class Spawner : MonoBehaviour
             return;
 
         timer += Time.deltaTime; //이전 프레임과 현재 프레임 사이의 시간 간격을 나타내는 값
-        level = Mathf.Min(Mathf.FloorToInt(GameManager.instance.gameTime / 10f), spawnData.Length - 1);
+        level = Mathf.Min(Mathf.FloorToInt(GameManager.instance.gameTime / levelTime), spawnData.Length - 1);
 
 
         if (timer > spawnData[level].spawnTime) {

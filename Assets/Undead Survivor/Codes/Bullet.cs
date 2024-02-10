@@ -19,21 +19,29 @@ public class Bullet : MonoBehaviour
         this.damage = damage; //왼쪽 bullet꺼 오른쪽 매개변수로받는값
         this.per = per;
         
-        if (per > -1) { // 무한대보다 크다면
+        if (per >= 0) {
             rigid.velocity = dir * 15f;
         }
     }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if(!collision.CompareTag("Enemy") || per == -1)
+        if(!collision.CompareTag("Enemy") || per == -100)
             return;
         per--;
 
-        if(per == -1) {
+        if(per < 0) {
             rigid.velocity = Vector2.zero;
             gameObject.SetActive(false); // 오브젝트 풀링으로 관리되기때문에 비활성화시켜주어야함
         }
     }
 
+    // 투사체가 화면밖으로 날아갈때 보완
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (!collision.CompareTag("Area") || per == -100)
+            return;
+
+        gameObject.SetActive(false);
+    }
 }

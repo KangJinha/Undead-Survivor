@@ -12,8 +12,6 @@ public class Reposition : MonoBehaviour
     }
     void OnTriggerExit2D(Collider2D collision)
     {
-        
-
         if (!collision.CompareTag("Area"))
             return;
 
@@ -22,19 +20,25 @@ public class Reposition : MonoBehaviour
         
         switch (transform.tag) {
             case "Ground":
-                float diffX = (playerPos.x - myPos.x);
-                float diffY = (playerPos.y - myPos.y);
+                float diffX = playerPos.x - myPos.x;
+                float diffY = playerPos.y - myPos.y;
+                
                 float dirX = diffX < 0 ? -1 : 1;
                 float dirY = diffY < 0 ? -1 : 1;
+                
                 diffX = Mathf.Abs(diffX);
-                diffX = Mathf.Abs(diffY);
+                diffY = Mathf.Abs(diffY);
 
                 if (diffX > diffY) {
                     transform.Translate(Vector3.right * dirX * 40);
                 }
                 else if (diffX < diffY) {
                     transform.Translate(Vector3.up * dirY * 40);
-                }
+                } 
+                /*else {
+                    transform.Translate(dirX * 40, dirY * 40, 0);
+                    // dirX와 dirY에 지정된 방향으로 X축과 Y축으로 각각 40씩 이동
+                }*/
                 break;
             case "Enemy":
                 if (coll.enabled){
